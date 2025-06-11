@@ -69,7 +69,7 @@ def upload_excel(file):
 # ---------------- Retrieve Similar Examples ----------------
 def retrieve_similar_examples(user_question, top_n=3):
     try:
-        conn = sqlite3.connect('data/examples.db')
+        conn = sqlite3.connect('examples.db')
         cursor = conn.cursor()
         cursor.execute("SELECT question, query FROM examples")
         rows = cursor.fetchall()
@@ -229,7 +229,7 @@ elif mode == "🧠 Ask a Question":
                     # Option to save working example
                     if st.button("✅ Save this example for future use"):
                         try:
-                            conn = sqlite3.connect("data/examples.db")
+                            conn = sqlite3.connect("examples.db")
                             cur = conn.cursor()
                             cur.execute("""
                                 CREATE TABLE IF NOT EXISTS examples (
