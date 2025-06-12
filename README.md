@@ -1,98 +1,158 @@
-# NLP to SQL
-This project is a web-based application built with Streamlit that allows users to query a structured student dataset using natural language. The system translates user queries into executable SQL statements using a local large language model (DeepSeek) served via Ollama. The application also integrates a Retrieval-Augmented Generation (RAG) mechanism to enhance the quality and consistency of SQL generation using previously stored examples.
+# NLP to SQL Bot
 
-# Features
-Accepts user queries in natural language and generates corresponding SQL queries.
+## Overview
 
-Utilizes a locally hosted DeepSeek LLM via Ollama to perform language-to-SQL translation.
+**LLMQueryBot** is a Streamlit-based web application that enables users to query a student database using natural language. It leverages Ollama's DeepSeek-Coder (v2) to convert user questions into SQL queries, allowing for intuitive and flexible data exploration. The app supports fuzzy keyword matching, so users do not need to type exact city or branch names, and it features a Retrieval-Augmented Generation (RAG) system to improve query accuracy over time.
 
-Supports uploading Excel files and automatically storing the data into a local SQLite database.
+---
 
-Incorporates a RAG pipeline using TF-IDF to retrieve and embed similar example questions from a local database for context-aware prompt construction.
+## Architecture
 
-Validates the SQL query before execution to ensure only the SQL part is executed and any unrelated language model output is excluded.
+![Architecture](architecture.png)
 
-Restricts execution of write operations (INSERT, UPDATE, DELETE, DROP) to administrators using password authentication.
 
-Allows users to optionally save effective Q&A pairs for future improvement of the RAG engine.
+## Features
 
-# Folder Structure
-The application consists of the following files:
+- **Natural Language to SQL**: Ask questions in plain English; the app translates them into SQL queries.
+- **Fuzzy Matching**: Handles incomplete or misspelled city/branch names using fuzzy logic.
+- **RAG (Retrieval-Augmented Generation)**: Learns from good examples to improve future query generation.
+- **Admin Controls**: Write operations (insert, update, delete) require admin authentication.
+- **Excel Upload**: Easily populate or refresh the student database by uploading an Excel file.
+- **Pagination**: View large query results in a paginated table.
+- **Example Saving**: Save successful queries as examples to enhance the RAG system.
 
-Home_Page.py: Main Streamlit application script.
+---
 
-students.db: SQLite database generated dynamically from uploaded Excel files.
+## Project Structure
 
-examples.db: Stores past natural language questions and corresponding SQL queries for RAG.
+```
+.
+├── Home_Page.py                # Streamlit page for uploading Excel files to the database
+├── pages/
+│   └── 2_Query_Database.py     # Main query interface (natural language to SQL)
+├── requirements.txt            # Python dependencies
+├── .env                      # Environment variables (admin password)
+├── students.db                 # Main SQLite database (auto-generated)
+├── data/
+│   └── examples.db             # Example queries for RAG (auto-generated)
+└── README.md                   # Project documentation
+├── architecture.png            #Architecture of the whole project
+├── .gitignore
+├── students.xlsx               #an example xlsx file to upload
+```
 
-.env: Stores environment variables such as the admin password.
+---
 
-requirements.txt: Lists the required Python dependencies.
+## Setup Instructions
 
-README.md: Documentation of the project.
+### 1. Clone the Repository
 
-architecture.png : The overall flow of this project is depicted.
+```bash
+git clone <your-repo-url>
+cd LLMQueryBot
+```
 
-students.xlsx : An example xlsx file to upload.
+### 2. Install Dependencies
 
-# Installation
-
-1.Clone the repository:
-
-git clone https://github.com/kavya291/nlptosql.git
-cd nlptosql
-
-2.Create and activate a virtual environment:
-python -m venv venv
-source venv/bin/activate   # On Windows use: venv\Scripts\activate
-
-3.Install dependencies:
+```bash
 pip install -r requirements.txt
+```
 
-4.Create a .env file with the admin password:
+### 3. Set Up Environment Variables
+
+Create a `.env` file in the root directory with the following content:
+
+```
 ADMIN_PASSWORD=your_admin_password
+```
 
-5.Ensure that the Ollama service is running locally and that the DeepSeek model is available. 
+### 4. Run the Application
 
-6.To launch the Streamlit app, use the following command:
+```bash
 streamlit run Home_Page.py
-This will open the application in your browser where you can upload an Excel file, ask natural language questions, and retrieve answers from the database.
+```
 
-# Usage Instructions
-Upload an Excel file containing student data. The application will create or update students.db accordingly.
+- Start by uploading an Excel file with student data.
+- After a successful upload, proceed to the query page.
 
-Type your question in natural language. For example: “Show students with CGPA above 8 and location Bangalore”.
+---
 
-The system retrieves relevant examples from examples.db, constructs a prompt, and queries the DeepSeek model via Ollama.
+## Usage Guide
 
-The SQL query is extracted, validated, and executed on the SQLite database.
+### 1. Upload Student Data
 
-Optionally, you can save the successful question-SQL pair for future reference.
+- Go to the home page.
+- Upload an Excel file with columns: `Name`, `CGPA`, `Location`, `Email`, `Phone Number`, `Preferred Work Location`, `Specialization in Degree`.
+- The app will create or refresh the `students.db` database.
 
-For queries involving write operations, admin authentication is required.
+### 2. Query the Database
 
-# Security and Access Control
-Only SQL statements are executed. Any explanation or additional text generated by the LLM is filtered out.
+- On the query page, type your question in natural language (e.g., "Show all students from bangalor in computer").
+- The app will:
+  - Fuzzily match incomplete city/branch names (e.g., "bangalor" → "Bangalore", "computer" → "Computer Science").
+  - Generate and display the corresponding SQL query.
+  - Show the results in a paginated table.
 
-For security, write operations (INSERT, UPDATE, DELETE, DROP) require admin access, authenticated via a password defined in the .env file.
+### 3. Save Good Examples
 
-# Technical Notes
-Uses TF-IDF and cosine similarity to rank and retrieve similar questions for RAG.
+- If a query returns the desired result, click "Save this as a good example for future (RAG)" to help the system learn.
 
-SQLite is used for simplicity and easy integration with Streamlit.
+### 4. Admin Operations
 
-Excel parsing is handled using openpyxl.
+- If a query attempts to modify the database (insert, update, delete), you will be prompted for the admin password.
 
-Prompt construction includes schema and formatting examples to guide the LLM.
+---
 
-# Requirements
-Python 3.8 or above
+## RAG (Retrieval-Augmented Generation)
 
-Streamlit
+- The app stores good question-query pairs in `data/examples.db`.
+- When a new question is asked, it retrieves similar past examples to guide the LLM, improving SQL generation accuracy over time.
 
-SQLite3
+---
 
-Ollama installed and running locally with a compatible DeepSeek model
+## Security
 
-# Author
-Kavya M M
+- All write operations require admin authentication.
+- Passwords are stored in the `.env` file.
+
+---
+
+## Dependencies
+
+- `streamlit`
+- `pandas`
+- `openpyxl`
+- `sqlite3`
+- 'deepseek-coder-v2:latest'
+- `python-dotenv`
+- `rapidfuzz`
+- `sentence-transformers` (for advanced RAG, if needed)
+
+---
+
+## Example Excel Format
+
+| Name      | CGPA | Location   | Email           | Phone Number | Preferred Work Location | Specialization in Degree   |
+|-----------|------|------------|-----------------|--------------|------------------------|----------------------------|
+| John Doe  | 8.5  | Bangalore  | john@abc.com    | 1234567890   | Hyderabad              | Computer Science           |
+| ...       | ...  | ...        | ...             | ...          | ...                    | ...                        |
+
+---
+
+## Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## License
+
+[MIT License](LICENSE)
+
+---
+
+## Acknowledgements
+
+- Ollama's deepseek model
+- Streamlit for rapid web app development
+- RapidFuzz for fuzzy string matching 
