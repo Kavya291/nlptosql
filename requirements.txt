@@ -1,8 +1,8 @@
-streamlit==0.84.0
-pandas==1.1.5
-numpy==1.19.5
-openpyxl==3.1.2
-python-dotenv==1.0.1
-sentence-transformers==2.2.2
-rapidfuzz==3.6.1
-MFDoom/deepseek-r1-tool-calling:7b
+ pandas
+ openpyxl
+ streamlit
+ google-generativeai
+ python-dotenv
+ sentence-transformers
+ rapidfuzz
+ 
