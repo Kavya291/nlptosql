@@ -1,7 +1,7 @@
  pandas
  openpyxl
  streamlit
- google-generativeai
+ Ollama's DeepSeek-Coder (v2)
  python-dotenv
  sentence-transformers
  rapidfuzz
